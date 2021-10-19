@@ -583,12 +583,12 @@ public class ProcessingRobot {
             webElement.sendKeys(p.getprichina());
             smartSleep(sleepTime);
 
-            /*
+
             //КБК доходов
             webElement = driver.findElement(By.xpath("//input[@id='form1:text9']"));
-            webElement.sendKeys("39211302996066000 130");
+            webElement.sendKeys("39211302996066000130");
             smartSleep(sleepTime);
-*/
+
 
             /*
             select2 = null;
