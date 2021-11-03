@@ -10,7 +10,9 @@ public class People {
     String datestartuder;
     String dateenduder;
     String summauder;
+    String istochnic;
     String prichina;
+    String schet;
 
     public String getsnils() {
         return snils;
@@ -59,5 +61,19 @@ public class People {
     }
     public void setprichina(String prichina) {
         this.prichina = prichina;
+    }
+
+    public String getschet() {
+        return schet;
+    }
+    public void setschet(String schet) {
+        this.schet = schet;
+    }
+
+    public String getistochnic() {
+        return istochnic;
+    }
+    public void setistochnic(String istochnic) {
+        this.istochnic = istochnic;
     }
 }

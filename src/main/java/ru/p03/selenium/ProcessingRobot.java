@@ -111,6 +111,7 @@ public class ProcessingRobot {
         try {
             openNVP();
             getCSV();
+            Thread.sleep(4000);
 
         } catch (Exception e) {
             getErrorMessage(e,"run");
@@ -260,15 +261,17 @@ public class ProcessingRobot {
             while ((line = br.readLine()) != null) {
                 if (first != 0) {
                     String[] people = line.split(cvsSplitBy);
-                    System.out.println("[снилс= " + people[2].trim() +", номер документа= " + people[2].trim() + " , дата выдачи=" + people[3].trim() + " , срок с=" + people[4].trim() + " , срок по=" + people[5].trim() + " , источник=" + people[6].trim() + " , сумма=" + people[7].trim() + " , причина=" + people[8].trim() + "] ");
+                    System.out.println("[снилс= " + people[1].trim() +", номер документа= " + people[2].trim() + " , дата выдачи=" + people[3].trim() + " , срок с=" + people[4].trim() + " , срок по=" + people[5].trim() + " , источник=" + people[6].trim() + " , сумма=" + people[7].trim() + " , причина=" + people[8].trim() +" , счет=" + people[9].trim()+ "] ");
 
                     peop.setsnils(people[0].trim().replace("-","").replace(" ",""));
                     peop.setndocument(people[2].trim());
                     peop.setdvdocument(people[3].trim().substring(0,10).replace(".",""));
                     peop.setdatestartuder(people[4].trim().replace(".",""));
                     peop.setdateenduder(people[5].trim().replace(".",""));
+                    peop.setistochnic(people[6].trim());
                     peop.setsummauder(people[7].replace(" ",""));
                     peop.setprichina(people[8].trim());
+                    peop.setschet(people[9].trim());
 
                     inserUderP(peop, sheet, row);
                     i++;
@@ -507,6 +510,7 @@ public class ProcessingRobot {
             webElement.sendKeys(Keys.ENTER);
             smartSleep(sleepTime);
             smartSleep(sleepTime);
+            smartSleep(sleepTime);
 
             //выбрать
             webElement = driver.findElement(By.xpath("//input[@id='form3:table1:0:rowSelect1__input_sel']"));  //By.id("form3:table1:0:selectLink"));
@@ -531,42 +535,77 @@ public class ProcessingRobot {
             webElement.sendKeys(p.getsummauder());
             smartSleep(sleepTime);
 
+
             //основания назначения
             webElement = driver.findElement(By.xpath("//input[@id='form1:selectRazdelLink']"));
             webElement.sendKeys(Keys.ENTER);
             smartSleep(sleepTime);
 
-            while(!(driver.findElement(By.xpath("//a[@id='form1:dataTable2:0:command_link_razdel2']"))).isDisplayed()){
+            webElement = driver.findElement(By.xpath("//span[@id='form1:text_filteredRows22']"));
+            int q1 = Integer.parseInt(webElement.getText().replace(".",""));
+            q1=q1-1;
+            System.out.println("оснований "+(q1+1));
+
+            int flag=1111;
+            for(int i=0; i<q1+1; i++) {
+                if(i!=0) {
+                    webElement = driver.findElement(By.xpath("//input[@id='form1:selectRazdelLink']"));
+                    webElement.sendKeys(Keys.ENTER);
+                    smartSleep(sleepTime);
+                }
+                while (!(driver.findElement(By.xpath("//a[@id='form1:dataTable2:0:command_link_razdel2']"))).isDisplayed()) {
+                    smartSleep(sleepTime);
+                }
+                webElement = driver.findElement(By.xpath("//input[@id='form1:dataTable2:"+i+":rowSelect_rows2__input_sel']"));
+                webElement.sendKeys(Keys.SPACE);
+                webElement = driver.findElement(By.xpath("//input[@id='form1:dataTable2:button1_2']"));
+                webElement.sendKeys(Keys.ENTER);
                 smartSleep(sleepTime);
-            }
 
-            //поиск основания
-            webElement = driver.findElement(By.xpath("//a[@id='form1:dataTable2:0:command_link_razdel2']"));
-            webElement.sendKeys(Keys.ENTER);
-            smartSleep(sleepTime);
+                while (!(driver.findElement(By.xpath("//input[@id='form1:selectIstLink']"))).isDisplayed()) {
+                    smartSleep(sleepTime);
+                }
 
-            while(!(driver.findElement(By.xpath("//input[@id='form1:selectIstLink']"))).isDisplayed()){
+                //источник
+                webElement = driver.findElement(By.xpath("//input[@id='form1:selectIstLink']"));
+                webElement.sendKeys(Keys.ENTER);
                 smartSleep(sleepTime);
+
+                //поиск источника
+                webElement = driver.findElement(By.xpath("//span[@id='form1:text_filteredRows22']"));
+                int q2 = Integer.parseInt(webElement.getText().replace(".",""));
+                q2=q2-1;
+                System.out.println("источников "+(q2+1));
+                for (int j=0; j<(q2+1); j++){
+                    System.out.println("//span[@id='form1:dataTable2:"+j+":text_ist22']");
+                    webElement = driver.findElement(By.xpath("//span[@id='form1:dataTable2:"+j+":text_ist22']"));
+                    System.out.println(webElement.getText());
+                    if(webElement.getText().equals(p.getistochnic())){
+                        flag=j;
+                    }
+                }
+
+                if(flag!=1111) {
+                    webElement = driver.findElement(By.xpath("//input[@id='form1:dataTable2:"+flag+":rowSelect_rows2__input_sel']"));
+                    webElement.sendKeys(Keys.SPACE);
+                    webElement = driver.findElement(By.xpath("//input[@id='form1:dataTable2:button1_2']"));
+                    webElement.sendKeys(Keys.ENTER);
+                    smartSleep(sleepTime);
+                    break;
+                }
+                else{
+                    webElement = driver.findElement(By.xpath("//input[@id='form1:dataTable2:button2_2']"));
+                    webElement.sendKeys(Keys.ENTER);
+                }
             }
-
-            //источник
-            webElement = driver.findElement(By.xpath("//input[@id='form1:selectIstLink']"));
-            webElement.sendKeys(Keys.ENTER);
-            smartSleep(sleepTime);
-
-            //поиск источника
-            webElement = driver.findElement(By.xpath("//a[@id='form1:dataTable2:0:command_link_ist2']"));
-            webElement.sendKeys(Keys.ENTER);
-            smartSleep(sleepTime);
-
-            /*
+            
             //вид установленной выплаты
             select2 = null;
-            webElement25 = driver.findElement(By.id("form1:menu41"));
-            select2 = new Select(webElement25);
-            select2.selectByValue("10");
+            webElement = driver.findElement(By.id("form1:menu41"));
+            select2 = new Select(webElement);
+            select2.selectByValue("0");
             smartSleep(sleepTime);
-             */
+
 
             //дата возникновения задолженности
             webElement = driver.findElement(By.xpath("//input[@name='form1:arrearsDate']"));
@@ -574,21 +613,31 @@ public class ProcessingRobot {
             smartSleep(sleepTime);
             webElement = driver.findElement(By.xpath("//input[@name='form1:arrearsDate']"));
             webElement.sendKeys(Keys.HOME);
-            webElement.sendKeys(p.getdateenduder());
+            webElement.sendKeys(p.getdvdocument());
             smartSleep(sleepTime);
 
+            //переплата по вине пенсионера
+            Select select4 = null;
+            webElement = driver.findElement(By.xpath("//select[@name='form1:menu5']"));
+            if(p.getschet().equals("209")) {
+                select4 = new Select(webElement);
+                select4.selectByValue("1");
+            }
+            if((p.getschet().equals("16"))||(p.getschet().equals("С31"))){
+                select4 = new Select(webElement);
+                select4.selectByValue("0");
+            }
+            smartSleep(sleepTime);
 
             //причины образования излишне выплаченных сумм пенсии
             webElement = driver.findElement(By.xpath("//input[@id='form1:reasonCommentText']"));
             webElement.sendKeys(p.getprichina());
             smartSleep(sleepTime);
 
-
             //КБК доходов
             webElement = driver.findElement(By.xpath("//input[@id='form1:text9']"));
             webElement.sendKeys("39211302996066000130");
             smartSleep(sleepTime);
-
 
             /*
             select2 = null;
@@ -607,6 +656,20 @@ public class ProcessingRobot {
             while(!(driver.findElement(By.xpath("//span[@id='form1:viewFragmentPaging:filtredText']"))).isDisplayed()){//(By.id("form1:viewFragmentPaging:filtredText")).isDisplayed())){
             smartSleep(sleepTime);}
 
+            driver.switchTo().defaultContent();
+            smartSleep(sleepTime);
+
+            driver.switchTo().frame(frame3);
+
+            webElement = driver.findElement(By.xpath("//a[@title='Оформление удержаний / протокол расчета']"));
+            webElement.sendKeys("\n");
+            smartSleep(sleepTime);
+
+            driver.switchTo().defaultContent();
+            smartSleep(sleepTime);
+
+            driver.switchTo().frame(frame4);
+
             webElement = driver.findElement(By.xpath("//span[@id='form1:viewFragmentPaging:filtredText']"));
             smartSleep(sleepTime);
             smartSleep(sleepTime);
@@ -614,6 +677,26 @@ public class ProcessingRobot {
             int q = Integer.parseInt(webElement.getText().replace(".",""));
             q=q-1;
             String a = "form1:table1:"+q+":rowSelect1__input_sel";
+            System.out.println(a);
+
+            webElement = driver.findElement(By.xpath("//input[@name='"+a+"']"));
+            webElement.sendKeys(Keys.SPACE);
+            smartSleep(sleepTime);
+
+            webElement = driver.findElement(By.xpath("//input[@name='form1:table1:calcUder']"));
+            webElement.sendKeys(Keys.ENTER);
+
+            while(!(driver.findElement(By.xpath("//ul[@id='form1:messages1']"))).getText().equals("Начисление прошло успешно!")){
+                smartSleep(sleepTime);
+            }
+
+            webElement = driver.findElement(By.xpath("//span[@id='form1:viewFragmentPaging:filtredText']"));
+            smartSleep(sleepTime);
+            smartSleep(sleepTime);
+
+            q = Integer.parseInt(webElement.getText().replace(".",""));
+            q=q-1;
+            a = "form1:table1:"+q+":rowSelect1__input_sel";
             System.out.println(a);
 
             webElement = driver.findElement(By.xpath("//input[@name='"+a+"']"));
